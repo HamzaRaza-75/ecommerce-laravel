@@ -204,6 +204,8 @@
                         </div>
                     </form> --}}
 
+                    <a href="{{ route('dashboard') }}" class="btn btn-outline-info">Switch To Buyer</a>
+
                     <!-- Topbar Navbar -->
                     <ul class="ml-auto navbar-nav">
 

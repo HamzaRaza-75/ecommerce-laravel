@@ -33,4 +33,12 @@ class OrderItem extends Model
     {
         return $this->hasMany(Review::class, 'order_item_id');
     }
+
+    public function canBeReviewedBy(User $user, Product $product)
+    {
+        return Review::where('user_id', $user->id)
+            ->where('order_id', $this->id)
+            ->where('product_id', $product->id)
+            ->doesntExist();
+    }
 }

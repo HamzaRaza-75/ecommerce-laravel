@@ -167,7 +167,7 @@
                         </div>
                     @endforeach
                 @else
-                    <div class="min-vh-100 d-flex align-items-center justify-content-center">
+                    <div class="d-flex align-items-center justify-content-center">
                         <div class="text-center">
                             <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
                             <h2 class="not-found-message">No Records Found</h2>

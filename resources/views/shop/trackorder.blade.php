@@ -92,8 +92,15 @@
                                 <div class="ms-3">
                                     <p class="mb-1 fw-semibold">
                                         {{ $orderitems->product->name }}<br>Quantity : {{ $orderitems->quantity }}</p>
-                                    <span class="text-muted">{{ $orderitems->total_price }} |
-                                        {{ $orderitems->status ? $orderitems->status : 'Status Not found' }} </span>
+                                    <span class="text-muted">{{ $orderitems->total_price }} | </span>
+                                    @if ($orderitems->status == 'pending')
+                                        <span> {{ $orderitems->status }} </span>
+                                    @else
+                                        <span class="text-success"> {{ $orderitems->status }} </span>
+                                        <a class="link-info link-offset-2 link-underline-opacity-0"
+                                            href="{{ route('shop.product.view', ['id' => $orderitems->product_id]) }}">
+                                            Rating <sup>+</sup> </a>
+                                    @endif
                                 </div>
                             </div>
                         </div>

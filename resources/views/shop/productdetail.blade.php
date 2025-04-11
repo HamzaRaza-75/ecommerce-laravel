@@ -122,28 +122,31 @@
                                             @foreach ($product->reviews as $reviews)
                                                 <!-- Review -->
                                                 <div class="flex-w flex-t p-b-68">
-                                                    <div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
-                                                        <img src="images/avatar-01.jpg" alt="AVATAR">
-                                                    </div>
+                                                    <span class="rounded-pill bg-primary px-2 text-white">
+                                                        {{ strtoupper(substr($reviews->user->name, 0, 1)) }}
+                                                    </span>
 
                                                     <div class="size-207">
                                                         <div class="flex-w flex-sb-m p-b-17">
                                                             <span class="mtext-107 cl2 p-r-20">
-                                                                Ariana Grande
+                                                                {{ $reviews->user->name }}
                                                             </span>
 
                                                             <span class="fs-18 cl11">
-                                                                <i class="zmdi zmdi-star"></i>
-                                                                <i class="zmdi zmdi-star"></i>
-                                                                <i class="zmdi zmdi-star"></i>
-                                                                <i class="zmdi zmdi-star"></i>
-                                                                <i class="zmdi zmdi-star-half"></i>
+                                                                @for ($i = 1; $i <= 5; $i++)
+                                                                    @if ($i <= $reviews->rating)
+                                                                        <i class="zmdi zmdi-star text-warning"></i>
+                                                                        {{-- filled star --}}
+                                                                    @else
+                                                                        <i class="zmdi zmdi-star-outline"></i>
+                                                                        {{-- empty star --}}
+                                                                    @endif
+                                                                @endfor
                                                             </span>
                                                         </div>
 
                                                         <p class="stext-102 cl6">
-                                                            Quod autem in homine praestantissimum atque optimum est, id
-                                                            deseruit. Apud ceteros autem philosophos
+                                                            {{ $reviews->comment ? $reviews->comment : 'No text found for this review' }}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -152,47 +155,72 @@
                                             @endforeach
                                         @else
                                             <div class="container text-secondary d-flex justify-content-center">
-                                                No Record Found
+                                                No Review Added
                                             </div>
                                         @endif
-                                        <form class="w-full">
-                                            <h5 class="mtext-108 cl2 p-b-7">
-                                                Add a review
-                                            </h5>
+                                        @php
+                                            $user = auth()->user();
 
-                                            <p class="stext-102 cl6">
-                                                Your email address will not be published. Required fields are marked
-                                                *
-                                            </p>
+                                            $hasPurchased = \App\Models\OrderItem::where('product_id', $product->id)
+                                                ->where('status', 'proceeded')
+                                                ->whereHas('order', function ($q) use ($user) {
+                                                    $q->where('user_id', $user->id); // adjust status according to your logic
+                                                })
+                                                ->exists();
 
-                                            <div class="flex-w flex-m p-t-50 p-b-23">
-                                                <span class="stext-102 cl3 m-r-16">
-                                                    Your Rating
-                                                </span>
+                                            $hasReviewed = \App\Models\Review::where('product_id', $product->id)
+                                                ->where('user_id', $user->id)
+                                                ->exists();
 
-                                                <span class="wrap-rating fs-18 cl11 pointer">
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <input class="dis-none" type="number" name="rating">
-                                                </span>
-                                            </div>
+                                        @endphp
 
-                                            <div class="row p-b-25">
-                                                <div class="col-12 p-b-5">
-                                                    <label class="stext-102 cl3" for="review">Your
-                                                        review</label>
-                                                    <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10" id="review" name="review"></textarea>
+                                        @if ($hasPurchased && !$hasReviewed)
+                                            <form action="{{ route('shop.product.review', $product) }}" method="POST"
+                                                class="w-full">
+                                                @csrf
+                                                <h5 class="mtext-108 cl2 p-b-7">
+                                                    Add a review
+                                                </h5>
+
+                                                <p class="stext-102 cl6">
+                                                    Your email address will not be published. Required fields are marked
+                                                    *
+                                                </p>
+
+                                                <div class="flex-w flex-m p-t-50 p-b-23">
+                                                    <span class="stext-102 cl3 m-r-16">
+                                                        Your Rating
+                                                    </span>
+
+                                                    <span class="wrap-rating fs-18 cl11 pointer">
+                                                        <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                        <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                        <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                        <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                        <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                        <input class="dis-none" type="number" name="rating">
+                                                    </span>
                                                 </div>
-                                            </div>
 
-                                            <button
-                                                class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 m-b-10">
-                                                Submit
-                                            </button>
-                                        </form>
+                                                <div class="row p-b-25">
+                                                    <div class="col-12 p-b-5">
+                                                        <label class="stext-102 cl3" for="review">Your
+                                                            review</label>
+                                                        <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10" id="review" name="comment"></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 m-b-10">
+                                                    Submit
+                                                </button>
+                                            </form>
+                                        @elseif(!$hasPurchased)
+                                            <p class="text-danger">You must purchase this product to leave a review.</p>
+                                        @elseif($hasReviewed)
+                                            <p class="text-warning">You have already submitted a review for this product.
+                                            </p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

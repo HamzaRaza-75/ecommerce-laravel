@@ -3,6 +3,7 @@
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\LandingShopController;
 use App\Http\Controllers\Shop\OrderController;
+use App\Models\OrderItem;
 use Illuminate\Support\Facades\Route;
 
 
@@ -28,6 +29,9 @@ Route::middleware(['auth', 'role:client|store-owner'])->prefix('ecommerce-shop')
 
 
     Route::get('/about', [LandingShopController::class, 'aboutshop'])->name('about');
+
+
+    Route::post('/review/{product}', [OrderController::class, 'reviewstore'])->name('product.review');
 });
 
 

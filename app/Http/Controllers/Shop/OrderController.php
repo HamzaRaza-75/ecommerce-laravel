@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\Review;
 use App\Models\User;
 use Binafy\LaravelCart\Models\Cart;
 use Illuminate\Support\Str;
@@ -148,5 +151,36 @@ class OrderController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function reviewstore(Request $request, Product $product)
+    {
+        $user = auth()->user();
+
+        $alreadyReviewed = Review::where('user_id', $user->id)->where('product_id', $product->id)->exists();
+
+        if ($alreadyReviewed) {
+            return back()->with('error', 'You have already reviewed this product.');
+        }
+
+        $orderItem = OrderItem::where('product_id', $product->id)
+            ->where('status', 'proceeded')
+            ->whereHas('order', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->first();
+
+        if (!$orderItem) {
+            return back()->with('error', 'You need to purchase this product before reviewing.');
+        }
+
+        Review::create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'order_item_id' => $orderItem->id,
+            'comment' => $request->comment,
+            'rating' => $request->rating,
+        ]);
+
+        return back()->with('success', 'Thank you for your review!');
     }
 }

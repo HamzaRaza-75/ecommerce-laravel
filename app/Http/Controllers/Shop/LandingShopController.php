@@ -93,7 +93,7 @@ class LandingShopController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with(['reviews', 'category'])
+        $product = Product::with(['reviews' => ['user'], 'category'])
             ->withCount('reviews')
             ->findOrFail($id);
 

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('rating');
             $table->text('comment')->nullable();
             $table->timestamps();
+
+            $table->unique(['user_id', 'order_id', 'product_id']);
         });
     }
 
