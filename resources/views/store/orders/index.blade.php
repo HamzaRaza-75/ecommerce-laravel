@@ -26,7 +26,7 @@
                             @foreach ($orders as $order)
                                 <tr class="{{ $order->status == 'pending' ? 'bg-secondary' : '' }}">
                                     <td>{{ $order->order->order_num }}</td>
-                                    <td><a href="{{ route('store.product.show', $order->product) }}"><img
+                                    <td><a href="{{ route('store.product.show', ['id' => $order->product->id]) }}"><img
                                                 src="{{ asset('storage/' . $order->product->product_image) }}" class="avatar"
                                                 alt="Avatar" style="width: 23px">
                                             {{ $order->product->name }}</a></td>

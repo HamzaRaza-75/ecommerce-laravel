@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
@@ -71,12 +72,31 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(string $id)
     {
+        $product = Product::findOrFail($id);
         Gate::authorize('update', $product);
+        // Eager load user (belongsTo) and orderitems.order (hasMany through)
 
-        $product->load('orderitems');
-        return view('store.items.view', compact('product'));
+        // Paginate related orderitems with their order
+        $orderItems = $product->orderitems()->with('order.user')->paginate(10);
+
+
+
+        $earnings = DB::table('order_items')
+            ->where('product_id', $product->id)
+            ->select(
+                DB::raw("DATE_FORMAT(created_at, '%M') as month"), // e.g. January
+                DB::raw("SUM(total_price) as total")
+            )
+            ->groupBy(DB::raw("MONTH(created_at), DATE_FORMAT(created_at, '%M')"))
+            ->orderBy(DB::raw("MIN(created_at)"))
+            ->pluck('total', 'month');
+
+        $earningLabels = $earnings->keys();     // ['January', 'February', ...]
+        $earningValues = $earnings->values();
+
+        return view('store.items.view', compact('product', 'orderItems', 'earningLabels', 'earningValues'));
     }
 
     /**

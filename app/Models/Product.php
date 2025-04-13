@@ -34,6 +34,11 @@ class Product extends Model implements Cartable
         return $this->price;
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
     public function store()
     {
         return $this->belongsTo(Store::class);

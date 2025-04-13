@@ -15,7 +15,6 @@
                     <th>Price</th>
                     <th>Stock</th>
                     <th>Status</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,16 +37,6 @@
                             <td>${{ number_format($item->price, 2) }}</td>
                             <td>{{ $item->stock }}</td>
                             <td>{{ ucfirst($item->status) }}</td>
-                            <td>
-                                <ul class="action-list list-inline mb-0">
-                                    <li class="list-inline-item">
-                                        <a href="{{ route('superadmin.product.show', ['id' => $item->id]) }}"
-                                            data-tip="view">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </td>
                         </tr>
                     @endforeach
                 @else
